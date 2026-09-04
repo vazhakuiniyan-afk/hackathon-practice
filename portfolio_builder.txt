@@ -1,0 +1,52 @@
+import requests
+
+def get_age_prediction(name):
+    """Fetch age prediction from Agify API."""
+    try:
+        res = requests.get(f"https://api.agify.io?name={name}", timeout=5)
+        if res.status_code == 200:
+            return res.json().get('age')
+    except Exception:
+        pass
+    return None
+
+def get_country_prediction(name):
+    """Fetch country prediction from Nationalize API."""
+    try:
+        res = requests.get(f"https://api.nationalize.io?name={name}", timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            if data.get('country') and len(data['country']) > 0:
+                top = data['country'][0]
+                return top['country_id'], round(top['probability'] * 100, 1)
+    except Exception:
+        pass
+    return None, None
+
+def analyze_person(name):
+    """Combine predictions into a clean report."""
+    print(f"\n--- Analysis for: {name.title()} ---")
+    
+    age = get_age_prediction(name)
+    country, confidence = get_country_prediction(name)
+    
+    if age:
+        print(f"• Predicted Age: ~{age} years old")
+    else:
+        print("• Predicted Age: Data unavailable")
+        
+    if country:
+        print(f"• Primary Nationality: {country} ({confidence}% confidence)")
+    else:
+        print("• Primary Nationality: Data unavailable")
+
+# Main Execution Flow
+if _name_ == "_main_":
+    print("=== 🚀 Hackathon Modular Identity Engine ===")
+    user_input = input("Enter a first name (or type 'exit' to quit): ").strip()
+    
+    while user_input.lower() != 'exit':
+        if user_input:
+            analyze_person(user_input)
+        print("\n" + "="*40)
+        user_input = input("Enter another name (or type 'exit' to quit): ").strip()
